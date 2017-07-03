@@ -45,7 +45,6 @@
 /// <summary>
 /// The application
 /// </summary>
-CWinApp theApp;
 
 using namespace std;
 
@@ -61,22 +60,13 @@ void example4();
 /// <param name="argv">The argv.</param>
 /// <param name="envp">The envp.</param>
 /// <returns>int.</returns>
-int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
+int main()
 {
 	int nRetCode = 0;
 
-	// initialize MFC and print and error on failure
-	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
-	{
-		// TODO: change error code to suit your needs
-		_tprintf(_T("Fatal Error: MFC initialization failed\n"));
-		nRetCode = 1;
-	}
-	else
-	{
-		example4();
 
-	}
+	example4();
+
 
 	return nRetCode;
 }

@@ -26,7 +26,7 @@
 // ***********************************************************************
 //#include "StdAfx.h"
 #include "Structer.h"
-#include "SFrame\linalg.h"
+//#include "SFrame\linalg.h"
 using namespace std;
 using namespace boost::numeric::ublas;
 
@@ -491,45 +491,45 @@ bool CStructer::solve()
 	/*                     调用第三方Fortran库						        */
 	/************************************************************************/
 	
-	if (linalg::Solve(Kfree,Unknown) == 0)
-	{
-		return false;
-	}
-	Unknown = trans(Unknown);
+	//if (linalg::Solve(Kfree,Unknown) == 0)
+	//{
+	//	return false;
+	//}
+	//Unknown = trans(Unknown);
 
 	/************************************************************************/
 	/*     利用ublas库LU分解(当其所有顺序主子式都不为0时)来求解		        */
 	/************************************************************************/
-//
-//permutation_matrix<double> P(m_Free_degree); 
-//boost::numeric::ublas::vector<double> x(m_Free_degree); 
-//boost::numeric::ublas::vector<double> v(m_Free_degree);
-//
-//for (int j=0;j<m_Free_degree;++j)
+
+    permutation_matrix<double> P(m_Free_degree);
+    boost::numeric::ublas::vector<double> x(m_Free_degree);
+    boost::numeric::ublas::vector<double> v(m_Free_degree);
+
+    for (int j = 0; j < m_Free_degree; ++j)
+    {
+        v(j) = Unknown(0, j);
+    }
+
+    //try
+    {
+        lu_factorize(Kfree, P);
+        x = v;
+        lu_substitute(Kfree, P, x);
+        cout << "解向量: " << x << endl;
+        for (int j = 0; j < m_Free_degree; ++j)
+        {
+            Unknown(0, j) = x(j);
+        }
+        Unknown = trans(Unknown);
+    }
+//catch (CMemoryException* e)
 //{
-//	v(j) = Unknown(0,j);
+//	std::cout << "内存操作失败" << std::endl; 
 //}
-//
-//try
+//catch (CFileException* e)
 //{
-//	lu_factorize(Kfree,P);
-//	x = v;
-//	lu_substitute(Kfree,P,x);
-//	cout << "解向量: " << x << endl; 
-//	for (int j=0;j<m_Free_degree;++j)
-//	{
-//		Unknown(0,j) = x(j);
-//	}
-//	Unknown = trans(Unknown);
+//	std::cout << "文件操作失败." << std::endl; 
 //}
-////catch (CMemoryException* e)
-////{
-////	std::cout << "内存操作失败" << std::endl; 
-////}
-////catch (CFileException* e)
-////{
-////	std::cout << "文件操作失败." << std::endl; 
-////}
 //catch (CException* e)
 //{
 //	std::cout << "奇异矩阵(无解或无穷解)." << std::endl; 

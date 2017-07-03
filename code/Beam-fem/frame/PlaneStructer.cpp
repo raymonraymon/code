@@ -1,6 +1,7 @@
-#include "StdAfx.h"
+//#include "StdAfx.h"
 #include "PlaneStructer.h"
-#include "SFrame\linalg.h"
+#include <boost/numeric/ublas/lu.hpp>
+//#include "SFrame\linalg.h"
 using namespace std;
 using namespace boost::numeric::ublas;
 
@@ -242,11 +243,49 @@ bool CPlaneStructer::solve()
 
 	matrix<double> Unknown=trans(subrange(RHS,0,m_Free_degree,0,1) - prod (Kab, dirichlet));//(m_displacement_set.size(),0);
 
-	if (linalg::Solve(Kfree,Unknown) == 0)
-	{
-		return false;
-	}
-	Unknown = trans(Unknown);
+	//if (linalg::Solve(Kfree,Unknown) == 0)
+	//{
+	//	return false;
+	//}
+    //Unknown = trans(Unknown);
+
+
+    permutation_matrix<double> P(m_Free_degree); 
+    boost::numeric::ublas::vector<double> x(m_Free_degree); 
+    boost::numeric::ublas::vector<double> v(m_Free_degree);
+    
+    for (int j=0;j<m_Free_degree;++j)
+    {
+    	v(j) = Unknown(0,j);
+    }
+    
+    //try
+    {
+    	lu_factorize(Kfree,P);
+    	x = v;
+    	lu_substitute(Kfree,P,x);
+    	cout << "解向量: " << x << endl; 
+    	for (int j=0;j<m_Free_degree;++j)
+    	{
+    		Unknown(0,j) = x(j);
+    	}
+    	Unknown = trans(Unknown);
+    }
+    //catch (CMemoryException* e)
+    //{
+    //	std::cout << "内存操作失败" << std::endl; 
+    //}
+    //catch (CFileException* e)
+    //{
+    //	std::cout << "文件操作失败." << std::endl; 
+    //}
+    //catch (CException* e)
+    //{
+    //	std::cout << "奇异矩阵(无解或无穷解)." << std::endl; 
+    //}
+
+
+	
 	for (std::map<int,std::vector<int>>::iterator pos = m_point_local.begin(); pos != m_point_local.end(); ++pos)
 	{
 		//double displace_bool[3] = {true,true,true};

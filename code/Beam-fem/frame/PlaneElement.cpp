@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+//#include "StdAfx.h"
 #include "PlaneElement.h"
 #include <iostream>
 

@@ -1,7 +1,7 @@
 // Homotopy.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "Homotopy.h"
 //#include "EulerNewton.h"
 #include "LiYorke.h"
@@ -14,7 +14,7 @@
 
 // The one and only application object
 
-CWinApp theApp;
+
 
 using namespace std;
 using namespace boost::numeric::ublas;
@@ -27,48 +27,21 @@ bool LYexample3(const double & x);
 //bool ENexample3();
 
 
-int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
+int main()
 {
-	int nRetCode = 0;
+    int nRetCode = 0;
 
-	HMODULE hModule = ::GetModuleHandle(NULL);
-
-	if (hModule != NULL)
-	{
-		// initialize MFC and print and error on failure
-		if (!AfxWinInit(hModule, NULL, ::GetCommandLine(), 0))
-		{
-			// TODO: change error code to suit your needs
-			_tprintf(_T("Fatal Error: MFC initialization failed\n"));
-			nRetCode = 1;
-		}
-		else
-		{
+    if (LYexample3(0.5) == false)
+    {
+        cout << "失败!" << endl;
+    }
+    else
+    {
+        cout << "成功!" << endl;
+    }
 
 
-			// TODO: code your application's behavior here.
-			
-			{
-				if (LYexample1() == false)
-				{
-					cout << "失败!" << endl;
-				}
-				else
-				{
-					cout << "成功!" << endl;
-				}
-			}
-
-		}
-	}
-	else
-	{
-		// TODO: change error code to suit your needs
-		_tprintf(_T("Fatal Error: GetModuleHandle failed\n"));
-		nRetCode = 1;
-	}
-
-	return nRetCode;
+    return nRetCode;
 }
 
 

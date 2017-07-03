@@ -1,7 +1,6 @@
 #pragma once
 #include <math.h>
 #include <vector>
-#include "resource.h"
 #include "TargetFun.h"
 
 namespace ublas = boost::numeric::ublas;

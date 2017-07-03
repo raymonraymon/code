@@ -8,7 +8,7 @@
 // beam.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
+
 #include "beam.h"
 #include "PlaneStructer.h"
 
@@ -23,23 +23,14 @@
 
 // The one and only application object
 
-CWinApp theApp;
+
 
 using namespace std;
 
-int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
+int main()
 {
 	int nRetCode = 0;
 
-	// initialize MFC and print and error on failure
-	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
-	{
-		// TODO: change error code to suit your needs
-		_tprintf(_T("Fatal Error: MFC initialization failed\n"));
-		nRetCode = 1;
-	}
-	else
-	{
 		// TODO: code your application's behavior here.
 		CPlanePoint P1(1,0.0,0.0);
 		CPlanePoint	P2(2,0.0,3.0);
@@ -100,7 +91,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 		{
 			cout<<"It does not work!"<<endl;
 		}
-	}
+
 
 	return nRetCode;
 }

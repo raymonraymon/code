@@ -1,7 +1,7 @@
-#include "StdAfx.h"
+//#include "StdAfx.h"
 #include "PlaneForce.h"
 
-#include "StdAfx.h"
+//#include "StdAfx.h"
 CPlaneForce::CPlaneForce(const int &Force_NO, double* Force_array)
 {
 	m_Force_NO = Force_NO;

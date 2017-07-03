@@ -1,5 +1,7 @@
-#include "StdAfx.h"
+//#include "StdAfx.h"
 #include "PlaneDisplacement.h"
+#include <iostream>
+#include <string.h>
 using namespace std;
 
 CPlaneDisplacement::CPlaneDisplacement(const int &displacement_NO,double* displacement_array,bool* displacement_bool)

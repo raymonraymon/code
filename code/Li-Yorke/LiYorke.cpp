@@ -1,5 +1,7 @@
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "LiYorke.h"
+#include <iomanip>
+#include <iosfwd>
 
 #define PI 3.141592653589793
 
@@ -96,14 +98,8 @@ bool CLiYorke::Solve(
 
 	pointsmap.insert(make_pair(k, endPt));
 
-	ofstream outfile1("LiYorke_temp.csv", ios::out);
-	if (!outfile1)
-	{
-		cerr << "open error" << endl;
-		//exit(1);
-		return false;
-	}
-	outfile1 << "temp道路上的点：" << endl;
+
+	cout << "temp道路上的点：" << endl;
 
 	while (abs(endPt(n, 0) - 1.0) > m_precision || 
 		norm_frobenius(m_pt->Homomap(endPt)) > m_precision)
@@ -136,12 +132,12 @@ bool CLiYorke::Solve(
 			anglemap.insert(make_pair(k, ang));
 			pointsmap.insert(make_pair(k, endPt));
 
-			outfile1 << setw(2) << k << ",";
+            cout << setw(2) << k << ",";
 			for (int i = 0; i < n + 1; ++i)
 			{
-			outfile1 << setw(20) << endPt(i, 0) << ",";
+                cout << setw(20) << endPt(i, 0) << ",";
 			}
-			outfile1 << endl;
+            cout << endl;
 
 			if (ang < minAngle)//介于6-18度，步长不变继续前进
 			{
@@ -156,25 +152,19 @@ bool CLiYorke::Solve(
 	//cout << "误差:" << error << endl;
 	assert(error < m_precision);
 
-	ofstream outfile("LiYorke.csv", ios::out);
-	if (!outfile)
-	{
-		cerr << "open error" << endl;
-		//exit(1);
-		return false;
-	}
-	outfile << setprecision(ios::scientific) << setprecision(20);
-	outfile << "道路上的点：" << endl;
+
+    cout << setprecision(ios::scientific) << setprecision(20);
+    cout << "道路上的点：" << endl;
 	for (std::map<int, matrix<double>>::iterator pos = pointsmap.begin();
 		pos != pointsmap.end();
 		++pos)
 	{
-		outfile << setw(2) << pos->first << ",";
+        cout << setw(2) << pos->first << ",";
 		for (int i = 0; i < n + 1; ++i)
 		{
-			outfile << setw(20) << pos->second(i, 0) << ",";
+            cout << setw(20) << pos->second(i, 0) << ",";
 		}
-		outfile << endl;
+        cout << endl;
 	}
 	return true;
 }
@@ -507,15 +497,44 @@ bool CLiYorke::TangentVec(const matrix<double>& point,
 	/*如果用与前一个切向量的夹角来选择下一个切向量的方向，这一步就可以省略*/
 
 	matrix<double> unKnown = trans(theRightHand);
-	if (linalg::Solve(extendedMatrix, unKnown) == 0)
-	{
-		return false;
-	}
+
+
+	//if (linalg::Solve(extendedMatrix, unKnown) == 0)
+	//{
+	//	return false;
+	//}
+    //unKnown = trans(unKnown);
+
+
+    int m_Free_degree = n + 1;
+
+    permutation_matrix<double> P(m_Free_degree);
+    boost::numeric::ublas::vector<double> x(m_Free_degree);
+    boost::numeric::ublas::vector<double> v(m_Free_degree);
+
+    for (int j = 0; j < m_Free_degree; ++j)
+    {
+        v(j) = unKnown(0, j);
+    }
+
+    //try
+    {
+        lu_factorize(extendedMatrix, P);
+        x = v;
+        lu_substitute(extendedMatrix, P, x);
+        cout << "解向量: " << x << endl;
+        for (int j = 0; j < m_Free_degree; ++j)
+        {
+            unKnown(0, j) = x(j);
+        }
+        unKnown = trans(unKnown);
+    }
+
 	/************************************************************************/
 	/* 记下上一个切向量                                                       */
 	/************************************************************************/
 
-	unKnown = trans(unKnown);
+	
 
 	matrix_column<matrix<double> > vec1column(unKnown, 0);
 	matrix_column<matrix<double> > vec2column(m_lastTanVec, 0);
@@ -581,12 +600,38 @@ bool CLiYorke::TangentVec1(const matrix<double>& point,
 	theRightHand(n, 0) = 1.0;
 
 	matrix<double> unKnown = trans(theRightHand);
-	if (linalg::Solve(MatJacobiT, unKnown) == 0)
-	{
-		return false;
-	}
+	//if (linalg::Solve(MatJacobiT, unKnown) == 0)
+	//{
+	//	return false;
+	//}
+    //unKnown = trans(unKnown);
 
-	unKnown = trans(unKnown);
+    int m_Free_degree = n + 1;
+
+    permutation_matrix<double> P(m_Free_degree);
+    boost::numeric::ublas::vector<double> x(m_Free_degree);
+    boost::numeric::ublas::vector<double> v(m_Free_degree);
+
+    for (int j = 0; j < m_Free_degree; ++j)
+    {
+        v(j) = unKnown(0, j);
+    }
+
+    //try
+    {
+        lu_factorize(MatJacobiT, P);
+        x = v;
+        lu_substitute(MatJacobiT, P, x);
+        cout << "解向量: " << x << endl;
+        for (int j = 0; j < m_Free_degree; ++j)
+        {
+            unKnown(0, j) = x(j);
+        }
+        unKnown = trans(unKnown);
+    }
+
+
+
 	matrix<double> unKnownSigma;
 	unKnownSigma = sqrt(m_sigma)*unKnown;
 	unKnownSigma(n, 0) = unKnown(n, 0);
@@ -614,11 +659,38 @@ bool CLiYorke::FirstTangentVec(const matrix<double>& point,
 	matrix<double> MatHt = m_pt->HomomapT(pt);
 	matrix<double> unKnown = trans(-1 * MatHt);
 	//cout << "Matjacobi：" << Matjacobi << endl;
-	if (linalg::Solve(Matjacobi, unKnown) == 0)
-	{
-		return false;
-	}
-	unKnown = trans(unKnown);
+	//if (linalg::Solve(Matjacobi, unKnown) == 0)
+	//{
+	//	return false;
+	//}
+	//unKnown = trans(unKnown);
+
+    int m_Free_degree = Matjacobi.size1();
+
+    permutation_matrix<double> P(m_Free_degree);
+    boost::numeric::ublas::vector<double> x(m_Free_degree);
+    boost::numeric::ublas::vector<double> v(m_Free_degree);
+
+    for (int j = 0; j < m_Free_degree; ++j)
+    {
+        v(j) = unKnown(0, j);
+    }
+
+    //try
+    {
+        lu_factorize(Matjacobi, P);
+        x = v;
+        lu_substitute(Matjacobi, P, x);
+        cout << "解向量: " << x << endl;
+        for (int j = 0; j < m_Free_degree; ++j)
+        {
+            unKnown(0, j) = x(j);
+        }
+        unKnown = trans(unKnown);
+    }
+
+
+
 	double t = 1 / sqrt(1 + m_sigma*pow(norm_frobenius(unKnown), 2));
 	unKnown = t * unKnown;
 	TangentVector = point;
@@ -805,10 +877,36 @@ bool CLiYorke::NewtonIter(
 		return false;
 	}
 	matrix<double> unKnown = trans(Mrhs);
-	if (linalg::Solve(Mjacobi, unKnown) == 0)
-	{
-		return false;
-	}
+	//if (linalg::Solve(Mjacobi, unKnown) == 0)
+	//{
+	//	return false;
+	//}
+
+    int m_Free_degree = Mjacobi.size1();
+
+    permutation_matrix<double> P(m_Free_degree);
+    boost::numeric::ublas::vector<double> x(m_Free_degree);
+    boost::numeric::ublas::vector<double> v(m_Free_degree);
+
+    for (int j = 0; j < m_Free_degree; ++j)
+    {
+        v(j) = unKnown(0, j);
+    }
+
+    //try
+    {
+        lu_factorize(Mjacobi, P);
+        x = v;
+        lu_substitute(Mjacobi, P, x);
+        cout << "解向量: " << x << endl;
+        for (int j = 0; j < m_Free_degree; ++j)
+        {
+            unKnown(0, j) = x(j);
+        }
+        //unKnown = trans(unKnown);
+    }
+
+
 	matrix<double> interResult1 = predictPt - trans(unKnown);
 	matrix<double> interResult2 = predictPt;
 
@@ -833,10 +931,35 @@ bool CLiYorke::NewtonIter(
 			return false;
 		}
 		unKnown = trans(Mrhs);
-		if (linalg::Solve(Mjacobi, unKnown) == 0)
-		{
-			return false;
-		}
+		//if (linalg::Solve(Mjacobi, unKnown) == 0)
+		//{
+		//	return false;
+		//}
+
+        int m_Free_degree = Mjacobi.size1();
+
+        permutation_matrix<double> P(m_Free_degree);
+        boost::numeric::ublas::vector<double> x(m_Free_degree);
+        boost::numeric::ublas::vector<double> v(m_Free_degree);
+
+        for (int j = 0; j < m_Free_degree; ++j)
+        {
+            v(j) = unKnown(0, j);
+        }
+
+        //try
+    {
+        lu_factorize(Mjacobi, P);
+        x = v;
+        lu_substitute(Mjacobi, P, x);
+        cout << "解向量: " << x << endl;
+        for (int j = 0; j < m_Free_degree; ++j)
+        {
+            unKnown(0, j) = x(j);
+        }
+        //unKnown = trans(unKnown);
+    }
+
 		interResult1 = interResult2 - trans(unKnown);
 		sigma.push_back(norm_frobenius(interResult1 - interResult2) / norm_frobenius(interResult2));
 

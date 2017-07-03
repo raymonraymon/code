@@ -27,11 +27,12 @@
 #include <math.h>
 #include <iostream>
 #include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/ublas/lu.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/matrix_expression.hpp>
 #include "TargetFun.h"
-#include "SFrame\linalg.h"
+//#include "SFrame\linalg.h"
 
 namespace ublas = boost::numeric::ublas;
 
