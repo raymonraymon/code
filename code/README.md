@@ -1,2 +1,1 @@
-# code
-some code in TongHao
+some code in Tonghao
